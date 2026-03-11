@@ -48,15 +48,15 @@
   .live-result-label { font-size: 9px; letter-spacing: 3px; color: #555; text-align: center; margin-bottom: 12px; }
   .seeds { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
   .seed-card { border-radius: 8px; padding: 12px; text-align: center; }
-  .seed-num { font-size: 10px; letter-spacing: 2px; color: #777; margin-bottom: 4px; }
+  .seed-num { font-size: 10px; letter-spacing: 2px; color: #bbb; margin-bottom: 4px; }
   .seed-team { font-size: 22px; font-weight: bold; }
-  .seed-record { font-size: 10px; color: #666; margin-top: 3px; }
+  .seed-record { font-size: 10px; color: #bbb; margin-top: 3px; }
   .quotients { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0; }
   .q-card { background: #0a0a14; border-radius: 6px; padding: 8px 4px; text-align: center; }
   .q-name { font-weight: bold; font-size: 11px; }
   .q-val { font-size: 14px; color: #ddd; margin-top: 3px; }
-  .q-lbl { font-size: 9px; color: #444; margin-top: 2px; }
-  .tb-label { text-align: center; font-size: 10px; color: #555; margin-bottom: 6px; }
+  .q-lbl { font-size: 9px; color: #aaa; margin-top: 2px; }
+  .tb-label { text-align: center; font-size: 10px; color: #aaa; margin-bottom: 6px; }
   .footer { text-align: center; margin-top: 14px; font-size: 9px; color: #333; line-height: 2; }
   .clear-btn { background: #2a1a1a; border: 1px solid #aa3333; color: #ff6666; font-size: 11px; font-family: monospace; letter-spacing: 1px; padding: 6px 14px; border-radius: 5px; cursor: pointer; transition: background 0.1s; }
   .clear-btn:hover { background: #3a1a1a; color: #ff9999; border-color: #cc4444; }
@@ -313,7 +313,7 @@ function buildDetailHTML(ita, mex, r) {
   let out = hdr;
   if (r.type==='ita_win') {
     out+=`<div class="seeds">${seedCard('1ST','ITA','4-0 · Pool B winner')}${seedCard('2ND','USA','3-1 · advances to QF')}</div>
-      <div style="text-align:center;font-size:11px;color:#555">🇲🇽 Mexico eliminated · finishes 2-2</div>`;
+      <div style="text-align:center;font-size:11px;color:#aaa">🇲🇽 Mexico eliminated · finishes 2-2</div>`;
   } else if (r.type==='sub') {
     out+=`<div class="tb-label">3-way tie at 3-1 · H2H all 1-1 → RA÷Outs tiebreaker</div><div class="quotients">`;
     for (const [nm,q,clr] of [['🇺🇸 USA',r.uQ,'#4a9eff'],['🇮🇹 Italy',r.iQ,'#3de07a'],['🇲🇽 Mexico',r.mQ,'#ff5c3a']]) {
@@ -329,7 +329,7 @@ function buildDetailHTML(ita, mex, r) {
       const elim=nm.includes(r.elim);
       out+=`<div class="q-card" style="border:1px solid ${clr}44;opacity:${elim?.35:1}"><div class="q-name" style="color:${clr}">${nm}</div><div class="q-val">${q.toFixed(4)}</div><div class="q-lbl">RA ÷ outs${elim?' · elim':''}</div></div>`;
     }
-    out+=`</div><div style="text-align:center;font-size:11px;color:#555">${teamFlag(r.elim)} ${r.elim} eliminated · finishes 3-1</div>`;
+    out+=`</div><div style="text-align:center;font-size:11px;color:#aaa">${teamFlag(r.elim)} ${r.elim} eliminated · finishes 3-1</div>`;
   }
   return out;
 }
