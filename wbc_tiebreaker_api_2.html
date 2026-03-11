@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>2026 WBC Pool B Tiebreaker Grid</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Courier New', monospace; background: #0a0a14; color: #ddd; min-height: 100vh; padding: 28px 16px; }
+  h1 { text-align: center; font-size: 21px; color: #fff; letter-spacing: 1px; margin-bottom: 4px; }
+  .subtitle { text-align: center; font-size: 12px; letter-spacing: 4px; color: #888; margin-bottom: 4px; }
+  .sub2 { text-align: center; font-size: 11px; color: #555; margin-bottom: 18px; }
+  .table-wrap { overflow-x: auto; }
+  table { border-collapse: collapse; margin: 0 auto; }
+  .corner { font-size: 9px; color: #555; text-align: center; border-bottom: 2px solid #333; border-right: 2px solid #333; padding: 6px 10px; line-height: 1.6; }
+  .col-header { padding: 6px 8px; font-size: 12px; color: #aaa; font-weight: bold; border-bottom: 2px solid #333; min-width: 64px; text-align: center; }
+  .col-label { font-size: 9px; color: #555; font-weight: normal; display: block; }
+  .row-header { padding: 6px 10px; font-size: 12px; color: #aaa; font-weight: bold; text-align: right; border-right: 2px solid #333; white-space: nowrap; }
+  .row-label { font-size: 9px; color: #555; font-weight: normal; }
+  .cell { padding: 5px 3px; font-weight: bold; font-size: 10px; border: 1px solid #161626; cursor: pointer; transition: background 0.08s; min-width: 64px; text-align: center; line-height: 1.5; }
+  .cell:hover { background: #2e2e4e !important; border-color: #7070cc !important; }
+  .cell.impossible { opacity: 0.2; }
+  .cell.live-highlight { outline: 3px solid #ff2222 !important; outline-offset: -2px; z-index: 10; position: relative; }
+  .t1 { display: block; font-size: 11px; font-weight: bold; }
+  .t2 { display: block; font-size: 10px; opacity: 0.7; }
+  .divider { display: block; font-size: 8px; color: #444; line-height: 1; }
+
+  .score-bar { display: flex; align-items: center; justify-content: center; gap: 16px; background: #111122; border: 1px solid #2a2a44; border-radius: 10px; padding: 12px 20px; max-width: 480px; margin: 0 auto 20px; flex-wrap: wrap; }
+  .score-input-group { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+  .score-input-group span { font-size: 10px; color: #666; }
+  .score-btn-group { display: flex; align-items: center; gap: 6px; }
+  .score-btn { background: #1a1a2e; border: 1px solid #333; color: #aaa; font-size: 16px; width: 28px; height: 28px; border-radius: 4px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-family: monospace; transition: background 0.1s; line-height: 1; }
+  .score-btn:hover { background: #2a2a4a; color: #fff; }
+  .score-display { font-size: 24px; font-weight: bold; min-width: 32px; text-align: center; }
+  .score-sep { font-size: 20px; color: #444; padding: 0 4px; }
+
+  .status-row { display: flex; align-items: center; gap: 8px; justify-content: center; margin-bottom: 12px; min-height: 20px; }
+  .badge { font-size: 9px; letter-spacing: 2px; border-radius: 3px; padding: 2px 7px; border: 1px solid; }
+  .badge-live  { color: #ff4444; background: #ff222218; border-color: #ff222244; animation: pulse 1.5s ease-in-out infinite; }
+  .badge-pre   { color: #888;    background: #88888818; border-color: #88888844; }
+  .badge-final { color: #44bb44; background: #44bb4418; border-color: #44bb4444; }
+  .badge-manual{ color: #aaa88a; background: #aaa88a18; border-color: #aaa88a44; }
+  .badge-error { color: #ffaa44; background: #ffaa4418; border-color: #ffaa4444; }
+  .status-text { font-size: 10px; color: #555; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+  .live-result { max-width: 500px; margin: 0 auto 20px; background: #111122; border: 1px solid #2a2a44; border-radius: 10px; padding: 18px; font-size: 12px; min-height: 80px; transition: opacity 0.15s; opacity: 0.25; }
+  .live-result.active { opacity: 1; }
+  .live-result-label { font-size: 9px; letter-spacing: 3px; color: #555; text-align: center; margin-bottom: 12px; }
+  .seeds { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+  .seed-card { border-radius: 8px; padding: 12px; text-align: center; }
+  .seed-num { font-size: 10px; letter-spacing: 2px; color: #777; margin-bottom: 4px; }
+  .seed-team { font-size: 22px; font-weight: bold; }
+  .seed-record { font-size: 10px; color: #666; margin-top: 3px; }
+  .quotients { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0; }
+  .q-card { background: #0a0a14; border-radius: 6px; padding: 8px 4px; text-align: center; }
+  .q-name { font-weight: bold; font-size: 11px; }
+  .q-val { font-size: 14px; color: #ddd; margin-top: 3px; }
+  .q-lbl { font-size: 9px; color: #444; margin-top: 2px; }
+  .tb-label { text-align: center; font-size: 10px; color: #555; margin-bottom: 6px; }
+  .footer { text-align: center; margin-top: 14px; font-size: 9px; color: #333; line-height: 2; }
+  .clear-btn { background: #2a1a1a; border: 1px solid #aa3333; color: #ff6666; font-size: 11px; font-family: monospace; letter-spacing: 1px; padding: 6px 14px; border-radius: 5px; cursor: pointer; transition: background 0.1s; }
+  .clear-btn:hover { background: #3a1a1a; color: #ff9999; border-color: #cc4444; }
+  .note { text-align: center; font-size: 10px; color: #445; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<div class="subtitle">2026 WORLD BASEBALL CLASSIC · POOL B</div>
+<h1>TIEBREAKER SCENARIO GRID</h1>
+<div class="sub2">Italy (visitor) vs Mexico (home) · Wed Mar 11 · Auto-updates every 30s</div>
+
+<div class="status-row">
+  <span class="badge badge-pre" id="status-badge">● PRE-GAME</span>
+  <span class="status-text" id="status-text">Checking for live data…</span>
+</div>
+
+<div class="score-bar">
+  <div class="score-input-group">
+    <span>🇮🇹 ITALY</span>
+    <div class="score-btn-group">
+      <button class="score-btn" onclick="manualAdjust('ita', -1)">−</button>
+      <div class="score-display" id="ita-display" style="color:#3de07a">–</div>
+      <button class="score-btn" onclick="manualAdjust('ita', 1)">+</button>
+    </div>
+  </div>
+  <span class="score-sep">vs</span>
+  <div class="score-input-group">
+    <span>🇲🇽 MEXICO</span>
+    <div class="score-btn-group">
+      <button class="score-btn" onclick="manualAdjust('mex', -1)">−</button>
+      <div class="score-display" id="mex-display" style="color:#ff5c3a">–</div>
+      <button class="score-btn" onclick="manualAdjust('mex', 1)">+</button>
+    </div>
+  </div>
+  <button class="clear-btn" onclick="clearLive()">✕ CLEAR</button>
+</div>
+
+<!-- Live result panel — always visible when score is set -->
+<div class="live-result" id="live-result">
+  <div class="live-result-label">WITH THIS SCORE</div>
+  <div style="color:#444;text-align:center;padding-top:4px" id="live-result-body">Set a score above to see who advances</div>
+</div>
+
+<div style="text-align:center;font-size:10px;color:#555;margin-bottom:8px">Diagonal cells (tied score) not shown · would require extra innings</div>
+<div class="table-wrap">
+  <table id="grid"></table>
+</div>
+
+</div>
+
+<div class="note">* USA: 27 outs vs ITA + 27 outs vs MEX = 54 · ITA: 27 outs vs USA + 24 outs vs MEX = 51 (MEX home tonight) · MEX: 24 outs vs USA + 27 outs vs ITA = 51</div>
+<div class="footer">
+  USA quotient: 11 runs ÷ 54 outs = 0.2037 (fixed) &nbsp;·&nbsp;
+  ITA: (6 + MEX score) ÷ 51 outs* &nbsp;·&nbsp;
+  MEX: (5 + ITA score) ÷ 51 outs
+</div>
+
+<script>
+// ── Tiebreaker logic ──────────────────────────────────────────────────────────
+const uQfixed = 11 / 54;
+
+function calc(ita, mex) {
+  if (ita === mex) return { type: 'extra' };
+  if (ita > mex)   return { type: 'ita_win', first: 'ITA', second: 'USA', elim: 'MEX' };
+  const uQ = uQfixed, iQ = (6+mex)/51, mQ = (5+ita)/51;
+  const arr = [{n:'USA',q:uQ},{n:'ITA',q:iQ},{n:'MEX',q:mQ}].sort((a,b)=>a.q-b.q);
+  const sub = Math.abs(arr[1].q - arr[2].q) < 1e-9;
+  return { type:sub?'sub':'clear', first:arr[0].n, second:sub?`${arr[1].n}/${arr[2].n}`:arr[1].n, elim:arr[2].n, uQ, iQ, mQ };
+}
+
+function teamColor(n) { return n==='USA'?'#4a9eff':n==='ITA'?'#3de07a':n==='MEX'?'#ff5c3a':'#888'; }
+function teamFlag(n)  { return n==='USA'?'🇺🇸':n==='ITA'?'🇮🇹':n==='MEX'?'🇲🇽':''; }
+function cellBg(r) {
+  if (!r||r.type==='extra') return '#1a1a2e';
+  if (r.type==='ita_win')   return '#0d2d4a';
+  if (r.second==='USA')     return '#0d1f4a';
+  if (r.second==='ITA')     return '#0d3a22';
+  if (r.second==='MEX')     return '#3a0d0d';
+  return '#2a2a0d';
+}
+
+// ── Build table ───────────────────────────────────────────────────────────────
+const table = document.getElementById('grid');
+let html = '<thead><tr><td class="corner">ITA →<br><span style="color:#666">MEX ↓</span></td>';
+for (let mex=0;mex<=15;mex++) html+=`<th class="col-header">${mex}<span class="col-label">MEX</span></th>`;
+html+='</tr></thead><tbody>';
+for (let ita=0;ita<=15;ita++) {
+  html+=`<tr><td class="row-header">${ita} <span class="row-label">ITA</span></td>`;
+  for (let mex=0;mex<=15;mex++) {
+    const r=calc(ita,mex), bg=cellBg(r);
+    if (r.type==='extra') {
+      html+=`<td class="cell impossible" style="background:${bg};color:#444" data-ita="${ita}" data-mex="${mex}">···</td>`;
+    } else {
+      html+=`<td class="cell" style="background:${bg}" data-ita="${ita}" data-mex="${mex}">
+        <span class="t1" style="color:${teamColor(r.first)}">${r.first}</span>
+        <span class="divider">/</span>
+        <span class="t2" style="color:${teamColor(r.second)}">${r.second}</span>
+      </td>`;
+    }
+  }
+  html+='</tr>';
+}
+table.innerHTML += html + '</tbody>';
+
+
+// ── Cell click to pin score ──────────────────────────────────────────────────
+table.addEventListener('click', e => {
+  const td = e.target.closest('td.cell');
+  if (!td || td.classList.contains('impossible')) return;
+  manualMode = true;
+  stopPolling();
+  setStatus('manual', 'Pinned from grid · press CLEAR to resume auto');
+  setScores(+td.dataset.ita, +td.dataset.mex);
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+
+// ── Score state ───────────────────────────────────────────────────────────────
+let liveIta = null, liveMex = null;
+let manualMode = false;
+let pollTimer  = null;
+let gameOver   = false;
+
+// Hardcoded gamePk — confirmed via MLB Stats API
+const GAME_PK = 788121;
+
+function setScores(ita, mex) {
+  liveIta = ita; liveMex = mex;
+  document.getElementById('ita-display').textContent = ita ?? '–';
+  document.getElementById('mex-display').textContent = mex ?? '–';
+  updateHighlight();
+  updateLiveResult();
+}
+
+function updateLiveResult() {
+  const panel = document.getElementById('live-result');
+  const body  = document.getElementById('live-result-body');
+  if (liveIta === null || liveMex === null) {
+    panel.classList.remove('active');
+    body.innerHTML = '<div style="color:#444;text-align:center;padding-top:4px">Set a score above to see who advances</div>';
+    return;
+  }
+  panel.classList.add('active');
+  body.innerHTML = buildDetailHTML(liveIta, liveMex, calc(liveIta, liveMex));
+}
+
+function updateHighlight() {
+  document.querySelectorAll('.cell.live-highlight').forEach(el=>el.classList.remove('live-highlight'));
+  if (liveIta===null||liveMex===null) return;
+  const t = document.querySelector(`td.cell[data-ita="${liveIta}"][data-mex="${liveMex}"]`);
+  if (t) t.classList.add('live-highlight');
+}
+
+function manualAdjust(team, delta) {
+  manualMode = true;
+  stopPolling();
+  setStatus('manual','Manual override — auto-polling paused · press ✕ to resume');
+  if (team==='ita') liveIta = Math.max(0,Math.min(15,(liveIta??-1)+delta));
+  else              liveMex = Math.max(0,Math.min(15,(liveMex??-1)+delta));
+  setScores(liveIta,liveMex);
+}
+
+function clearLive() {
+  manualMode = false;
+  gameOver   = false;
+  setScores(null,null);
+  updateLiveResult();
+  setStatus('pre','Checking for live data…');
+  startPolling();
+}
+
+// ── Status badge ──────────────────────────────────────────────────────────────
+function setStatus(type, text) {
+  const badge = document.getElementById('status-badge');
+  const label = document.getElementById('status-text');
+  const map = {
+    live:   ['badge-live',  '● LIVE'],
+    pre:    ['badge-pre',   '● PRE-GAME'],
+    final:  ['badge-final', '● FINAL'],
+    manual: ['badge-manual','● MANUAL'],
+    error:  ['badge-error', '● API ERROR'],
+  };
+  const [cls,txt] = map[type]??map.pre;
+  badge.className = 'badge '+cls;
+  badge.textContent = txt;
+  label.textContent = text;
+}
+
+// ── MLB Stats API polling ─────────────────────────────────────────────────────
+async function fetchScore() {
+  if (manualMode || gameOver) return;
+  try {
+    const res = await fetch(`https://statsapi.mlb.com/api/v1.1/game/${GAME_PK}/feed/live`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const gameState = data.gameData?.status?.abstractGameState; // 'Preview', 'Live', 'Final'
+    const linescore = data.liveData?.linescore;
+
+    // Game hasn't started yet — runs field won't exist on linescore teams
+    if (gameState === 'Preview' || linescore?.teams?.away?.runs === undefined) {
+      setStatus('pre','Game has not started yet — auto-updating every 30s');
+      return;
+    }
+
+    const itaRuns = linescore.teams.away.runs ?? 0;
+    const mexRuns = linescore.teams.home.runs ?? 0;
+    const inning  = linescore.currentInning ?? '';
+    const half    = linescore.inningHalf ?? '';
+
+    setScores(itaRuns, mexRuns);
+
+    if (gameState === 'Final') {
+      gameOver = true;
+      stopPolling();
+      setStatus('final',`Final · Italy ${itaRuns} – ${mexRuns} Mexico`);
+    } else {
+      setStatus('live',`${half} ${inning} · Italy ${itaRuns} – ${mexRuns} Mexico · updating every 30s`);
+    }
+
+  } catch(err) {
+    setStatus('error',`API unavailable (${err.message}) — use +/− to track manually`);
+    stopPolling();
+  }
+}
+
+function startPolling() {
+  if (pollTimer) return;
+  fetchScore();
+  pollTimer = setInterval(fetchScore, 30000);
+}
+
+function stopPolling() {
+  if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+}
+
+// ── Detail panel ──────────────────────────────────────────────────────────────
+function seedCard(rank, team, record) {
+  const medal = rank==='1ST'?'🥇':'🥈', clr=teamColor(team);
+  return `<div class="seed-card" style="background:${clr}11;border:1px solid ${clr}44">
+    <div class="seed-num">${medal} ${rank} SEED</div>
+    <div class="seed-team" style="color:${clr}">${teamFlag(team)} ${team}</div>
+    <div class="seed-record">${record}</div>
+  </div>`;
+}
+
+function buildDetailHTML(ita, mex, r) {
+  const hdr = `<div style="font-weight:bold;font-size:14px;color:#fff;text-align:center;margin-bottom:12px">
+    🇮🇹 Italy <span style="color:#3de07a">${ita}</span> &nbsp;–&nbsp; <span style="color:#ff5c3a">${mex}</span> Mexico 🇲🇽
+  </div>`;
+  if (r.type==='extra') {
+    return hdr+`<div style="color:#666;text-align:center">Tied after 9 → extra innings · outcome depends on walk-off</div>`;
+  }
+  let out = hdr;
+  if (r.type==='ita_win') {
+    out+=`<div class="seeds">${seedCard('1ST','ITA','4-0 · Pool B winner')}${seedCard('2ND','USA','3-1 · advances to QF')}</div>
+      <div style="text-align:center;font-size:11px;color:#555">🇲🇽 Mexico eliminated · finishes 2-2</div>`;
+  } else if (r.type==='sub') {
+    out+=`<div class="tb-label">3-way tie at 3-1 · H2H all 1-1 → RA÷Outs tiebreaker</div><div class="quotients">`;
+    for (const [nm,q,clr] of [['🇺🇸 USA',r.uQ,'#4a9eff'],['🇮🇹 Italy',r.iQ,'#3de07a'],['🇲🇽 Mexico',r.mQ,'#ff5c3a']]) {
+      out+=`<div class="q-card" style="border:1px solid ${clr}44"><div class="q-name" style="color:${clr}">${nm}</div><div class="q-val">${q.toFixed(4)}</div><div class="q-lbl">RA ÷ outs</div></div>`;
+    }
+    out+=`</div><div style="text-align:center;color:#d4d43a;font-size:12px;font-weight:bold">
+      ⚠️ 1st: <span style="color:${teamColor(r.first)}">${teamFlag(r.first)} ${r.first}</span>
+      &nbsp;·&nbsp; 2nd: <span style="color:#d4d43a">${r.second} tied → next tiebreaker</span></div>`;
+  } else {
+    out+=`<div class="seeds">${seedCard('1ST',r.first,'3-1 · Pool B winner')}${seedCard('2ND',r.second,'3-1 · advances to QF')}</div>`;
+    out+=`<div class="tb-label">3-way tie at 3-1 · H2H all 1-1 → RA÷Outs tiebreaker</div><div class="quotients">`;
+    for (const [nm,q,clr] of [['🇺🇸 USA',r.uQ,'#4a9eff'],['🇮🇹 Italy',r.iQ,'#3de07a'],['🇲🇽 Mexico',r.mQ,'#ff5c3a']]) {
+      const elim=nm.includes(r.elim);
+      out+=`<div class="q-card" style="border:1px solid ${clr}44;opacity:${elim?.35:1}"><div class="q-name" style="color:${clr}">${nm}</div><div class="q-val">${q.toFixed(4)}</div><div class="q-lbl">RA ÷ outs${elim?' · elim':''}</div></div>`;
+    }
+    out+=`</div><div style="text-align:center;font-size:11px;color:#555">${teamFlag(r.elim)} ${r.elim} eliminated · finishes 3-1</div>`;
+  }
+  return out;
+}
+
+
+
+// ── Kick off ──────────────────────────────────────────────────────────────────
+startPolling();
+</script>
+</body>
+</html>
